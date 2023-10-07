@@ -12,10 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var entryCollection *mongo.Collection = openCollection(Client, "calories")
+var entryCollection *mongo.Collection = OpenCollection(Client, "calories")
 
 func AddEntry(c *gin.Context) {
-	// ...
+
 }
 
 func GetEntries(c *gin.Context) {
@@ -46,7 +46,20 @@ func GetEntriesByIngredient(c *gin.Context) {
 }
 
 func GetEntryById(c *gin.Context) {
-	// ...
+	EntryID := c.Params.ByName("id")
+	docID, _ := primitive.ObjectIDFromHex(EntryID)
+
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	var entry bson.M
+	if err := entryCollection.FindOne(ctx, bson.M{"_id": docID}).Decode(&entry); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+
+	defer cancel()
+	fmt.Println(entry)
+	c.JSON(http.StatusOK, entry)
 }
 
 func UpdateIngredient(c *gin.Context) {
