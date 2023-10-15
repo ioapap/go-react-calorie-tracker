@@ -19,7 +19,7 @@ const Entries = () => {
 
     useEffect(() => {
         getAllEntries();
-    }, [])
+    }, [refreshData])
 
     if (refreshData) {
         setRefreshData(false);
@@ -57,7 +57,7 @@ const Entries = () => {
                         <Form.Label>Fat</Form.Label>
                         <Form.Control type="number" onChange={(event) => { newEntry.fat = event.target.value }}></Form.Control>
                     </Form.Group>
-                    <Button onClick={() => addSingleEntry}>Add</Button>
+                    <Button onClick={() => addSingleEntry()}>Add</Button>
                     <Button onClick={() => setAddNewEntry(false)}>Cancel</Button>
 
                 </Modal.Body>
@@ -143,7 +143,7 @@ const Entries = () => {
             if (response.status == 200) {
                 setRefreshData(true);
             }
-        })
+        });
     }
 
     function deleteSingleEntry(id) {
