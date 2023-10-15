@@ -1,4 +1,4 @@
-import React, { UseState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
 
@@ -62,18 +62,19 @@ const Entries = () => {
 
                 </Modal.Body>
             </Modal>
-            <Modal show={changeIngredient.change} onHide={() => setChangeIngredient({ "change": false, "id": 0 })} centered></Modal>
-            <Modal.Header closeButton>
-                <Modal.Title>Change ingredient</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form.Group>
-                    <Form.Label>New Ingredients</Form.Label>
-                    <Form.Control onChange={(event) => { setNewIngredientName(event.target.value) }}></Form.Control>
-                </Form.Group>
-                <Button onClick={() => changeIngredientForEntry()}>Change</Button>
-                <Button onClick={() => setChangeIngredient({ "change": false, "id": 0 })}>Cancel</Button>
-            </Modal.Body>
+            <Modal show={changeIngredient.change} onHide={() => setChangeIngredient({ "change": false, "id": 0 })} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Change ingredient</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group>
+                        <Form.Label>New Ingredients</Form.Label>
+                        <Form.Control onChange={(event) => { setNewIngredientName(event.target.value) }}></Form.Control>
+                    </Form.Group>
+                    <Button onClick={() => changeIngredientForEntry()}>Change</Button>
+                    <Button onClick={() => setChangeIngredient({ "change": false, "id": 0 })}>Cancel</Button>
+                </Modal.Body>
+            </Modal>
 
 
             <Modal show={changeEntry.change} onHide={() => setChangeEntry({ "change": false, "id": 0 })} centered>
@@ -96,52 +97,77 @@ const Entries = () => {
                         <Form.Control type="number" onChange={(event) => { newEntry.fat = event.target.value }}></Form.Control>
                     </Form.Group>
                     <Button onClick={() => changeSingleEntry()}>Change</Button>
-                    <Button onClick={() => setChangeEntry({ "change": false, "id": 0})}></Button>Cancel</Button>
-            </Modal.Body>
-        </Modal>
+                    <Button onClick={() => setChangeEntry({ "change": false, "id": 0 })}>Cancel</Button>
+                </Modal.Body>
+            </Modal>
         </div >
-
-
-
     );
 
-function addSingleEntry() {
-    setAddNewEntry(false);
-    var url = 'http://localhost:8000/entry/create';
-    axios.post(url, {
-        "dish": newEntry.dish,
-        "ingredients": newEntry.ingredients,
-        "calories": newEntry.calories,
-        "protein": newEntry.protein,
-        "carbs": newEntry.carbs,
-        "fat": parseFloat(newEntry.fat)
-    }).then((response) => {
-        if (response.status == 200) {
-            setRefreshData(true);
-        }
-    })
-}
 
-function deleteSingleEntry(id) {
-    var url = 'http://localhost:8000/entry/delete' + id;
-    axios.delete(url, {
-        "id": id
-    }).then((response) => {
-        if (response.status == 200) {
-            setRefreshData(true);
-        }
-    })
-}
+    function changeIngredientForEntry() {
+        changeIngredient.change = false;
+        var url = 'http://localhost:8000/ingredient/update' + changeIngredient.id
+        axios.put(url, {
+            "ingredients": newIngredientName
+        }).then((response) => {
+            console.log(response.status);
+            if (response.status == 200) {
+                setRefreshData(true);
+            }
+        })
+    }
 
-function getAllEntries() {
-    var url = 'http://localhost:8000/entries';
-    axios.get(url, {
-        responseType: 'json'
-    }).then((response) => {
-        if (response.status == 200) {
-            setEntries(response.data);
-        }
-    });
-}
+
+    function changeSingleEntry() {
+        changeEntry.change = false;
+        var url = 'http://localhost:8000/entry/update' + changeEntry.id
+        axios.put(url, newEntry)
+            .then(response => {
+                if (response.status == 200) {
+                    setRefreshData(true)
+                }
+            })
+    }
+
+    function addSingleEntry() {
+        setAddNewEntry(false);
+        var url = 'http://localhost:8000/entry/create';
+        axios.post(url, {
+            "dish": newEntry.dish,
+            "ingredients": newEntry.ingredients,
+            "calories": newEntry.calories,
+            "protein": newEntry.protein,
+            "carbs": newEntry.carbs,
+            "fat": parseFloat(newEntry.fat)
+        }).then((response) => {
+            if (response.status == 200) {
+                setRefreshData(true);
+            }
+        })
+    }
+
+    function deleteSingleEntry(id) {
+        var url = 'http://localhost:8000/entry/delete/' + id;
+        axios.delete(url, {
+            "id": id
+        }).then((response) => {
+            if (response.status == 200) {
+                setRefreshData(true);
+            }
+        })
+    }
+
+    function getAllEntries() {
+        var url = 'http://localhost:8000/entries';
+        axios.get(url, {
+            responseType: 'json'
+        }).then((response) => {
+            if (response.status == 200) {
+                setEntries(response.data);
+            }
+        });
+    }
 };
+
+export default Entries;
 
